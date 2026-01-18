@@ -73,7 +73,9 @@ export const StoreProvider = ({ children }) => {
       password, // Store password (plaintext for mock)
       id: Date.now().toString(),
       history: [],
-      bookmarks: []
+      bookmarks: [],
+      applied: [], // New: Track applied events
+      interested: [] // New: Track interested events
     };
 
     const updatedUsers = [...users, newUser];
@@ -118,9 +120,6 @@ export const StoreProvider = ({ children }) => {
 
   const addToHistory = (eventId) => {
     if (!user) return;
-    // Store IDs only.
-    // Ensure we handle both string/number variance by casting comparison, but preferably store consistent type.
-    // We'll store as provided (likely number from mockData or string from URL).
     const newHistory = [eventId, ...user.history.filter(id => String(id) !== String(eventId))].slice(0, 50);
     updateUser({ history: newHistory });
   };
@@ -143,9 +142,75 @@ export const StoreProvider = ({ children }) => {
     updateUser({ bookmarks: newBookmarks });
   };
 
+  const toggleApplied = (eventId) => {
+    if (!user) return;
+    const list = user.applied || [];
+    const isApplied = list.includes(eventId);
+    const newList = isApplied ? list.filter(id => id !== eventId) : [...list, eventId];
+    updateUser({ applied: newList });
+  };
+
+  const toggleInterested = (eventId) => {
+    if (!user) return;
+    const list = user.interested || [];
+    const isInterested = list.includes(eventId);
+    const newList = isInterested ? list.filter(id => id !== eventId) : [...list, eventId];
+    updateUser({ interested: newList });
+  };
+
   const updateInterests = (newInterests) => {
     updateUser({ interests: newInterests });
   };
+
+  // Derive Notifications
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    if (!user) {
+        setNotifications([]);
+        return;
+    }
+
+    const notifs = [];
+
+    // Rule 1: Viewed but not Applied (from History)
+    // Filter history events that are NOT in 'applied' list
+    user.history.forEach(historyId => {
+        // Skip if already applied
+        if (user.applied?.includes(historyId)) return;
+
+        // Find event details
+        const event = EVENTS.find(e => String(e.id) === String(historyId));
+        if (event) {
+             notifs.push({
+                 id: `remind-${historyId}`,
+                 type: "reminder",
+                 eventId: historyId,
+                 title: "Did you apply?",
+                 message: `You viewed ${event.title}. Don't miss the deadline!`,
+                 date: new Date().toISOString() // Just mock current time
+             });
+        }
+    });
+
+    // Rule 2: Interested events
+    (user.interested || []).forEach(interestedId => {
+        const event = EVENTS.find(e => String(e.id) === String(interestedId));
+        if (event) {
+            notifs.push({
+                id: `interest-${interestedId}`,
+                type: "alert",
+                eventId: interestedId,
+                title: "Upcoming Event",
+                message: `You are interested in ${event.title}. Make sure to prepare!`,
+                date: new Date().toISOString()
+            });
+        }
+    });
+
+    setNotifications(notifs);
+
+  }, [user, user?.history, user?.applied, user?.interested]);
 
   // Filter & Sort Logic
   useEffect(() => {
@@ -207,7 +272,10 @@ export const StoreProvider = ({ children }) => {
       addToHistory,
       removeFromHistory,
       toggleBookmark,
+      toggleApplied, // New
+      toggleInterested, // New
       updateInterests,
+      notifications, // New
       events,
       filteredEvents,
       filters,

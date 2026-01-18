@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { EVENTS } from "@/lib/mockData";
-import { Calendar, MapPin, Users, Trophy, ExternalLink, Share2, Clock, CheckCircle, Mail, Phone, Info, Bookmark } from "lucide-react";
+import { Calendar, MapPin, Users, Trophy, ExternalLink, Share2, Clock, CheckCircle, Mail, Phone, Info, Bookmark, Star } from "lucide-react";
 import GlassButton from "@/components/ui/GlassButton";
 import Badge from "@/components/ui/Badge";
 import Link from "next/link";
@@ -14,7 +14,7 @@ const getSimilarEvents = (currentEvent) => {
 };
 
 export default function EventDetailsPage({ params }) {
-  const { addToHistory, toggleBookmark, user } = useStore();
+  const { addToHistory, toggleBookmark, toggleApplied, toggleInterested, user } = useStore();
   const [event, setEvent] = useState(null);
   const [similarEvents, setSimilarEvents] = useState([]);
   const [unwrappedParams, setUnwrappedParams] = useState(null);
@@ -207,7 +207,7 @@ export default function EventDetailsPage({ params }) {
                    <div className="flex gap-2">
                        <GlassButton 
                           onClick={() => toggleBookmark(event.id)}
-                          variant="primary" // Resetting to primary to override fully with className
+                          variant="primary" 
                           className={`flex-1 justify-center transition-all duration-300 ${
                               user?.bookmarks?.includes(event.id) 
                               ? "!bg-neon-blue !text-black shadow-[0_0_15px_rgba(0,243,255,0.5)] border-transparent" 
@@ -220,6 +220,32 @@ export default function EventDetailsPage({ params }) {
                        <GlassButton variant="ghost" className="flex-1 justify-center text-white/50 hover:text-white">
                           <Share2 size={16} /> Share
                        </GlassButton>
+                   </div>
+
+                   {/* Status Toggles */}
+                   <div className="grid grid-cols-2 gap-2 pt-2">
+                       <button 
+                          onClick={() => toggleApplied(event.id)}
+                          className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border ${
+                              user?.applied?.includes(event.id)
+                              ? "bg-green-500/20 text-green-400 border-green-500/50"
+                              : "bg-white/5 text-white/40 border-transparent hover:bg-white/10"
+                          }`}
+                       >
+                           <CheckCircle size={14} /> {user?.applied?.includes(event.id) ? "Applied" : "Mark Applied"}
+                       </button>
+
+                       <button 
+                          onClick={() => toggleInterested(event.id)}
+                          className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border ${
+                              user?.interested?.includes(event.id)
+                              ? "bg-neon-purple/20 text-neon-purple border-neon-purple/50"
+                              : "bg-white/5 text-white/40 border-transparent hover:bg-white/10"
+                          }`}
+                       >
+                           <Star size={14} fill={user?.interested?.includes(event.id) ? "currentColor" : "none"} /> 
+                           {user?.interested?.includes(event.id) ? "Interested" : "Mark Interested"}
+                       </button>
                    </div>
                 </div>
 

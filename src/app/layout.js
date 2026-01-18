@@ -14,14 +14,19 @@ export const metadata = {
   description: "Discover campus events tailored to your interests.",
 };
 
+import ScrollToTop from "@/components/layout/ScrollToTop";
+
+// ... existing imports
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${outfit.variable} antialiased bg-background text-foreground overflow-x-hidden`}>
         <StoreProvider>
+          <ScrollToTop />
           <Navbar />
           <main className="min-h-screen pt-20">
-            {children}
+             {children}
           </main>
         </StoreProvider>
       </body>

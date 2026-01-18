@@ -3,16 +3,17 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/context/StoreContext";
-import { Zap, Menu, X, User } from "lucide-react";
+import { Zap, Menu, X, User, Bell } from "lucide-react";
 import GlassButton from "@/components/ui/GlassButton";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 
 const Navbar = () => {
-  const { user, login, logout } = useStore();
+  const { user, login, logout, notifications } = useStore();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false); // New: Notification Dropdown State
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,6 +63,52 @@ const Navbar = () => {
             </div>
           ) : (
              <div className="flex items-center gap-4 ml-4">
+                {/* Notifications */}
+                <div className="relative">
+                    <button 
+                        onClick={() => setNotifOpen(!notifOpen)}
+                        className="relative w-10 h-10 rounded-full bg-surface-highlight border border-white/10 flex items-center justify-center hover:border-neon-blue transition-colors text-white"
+                    >
+                        <Bell size={18} />
+                        {notifications.length > 0 && (
+                            <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-black"></span>
+                        )}
+                    </button>
+
+                    {/* Notification Dropdown */}
+                    {notifOpen && (
+                        <div className="absolute top-12 right-0 w-80 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-50">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-bold text-white">Notifications</h3>
+                                <span className="text-xs text-white/50">{notifications.length} New</span>
+                            </div>
+                            <div className="space-y-3 max-h-60 overflow-y-auto">
+                                {notifications.length > 0 ? (
+                                    notifications.map(notif => (
+                                        <div key={notif.id} className="p-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${notif.type === 'alert' ? 'bg-neon-purple/20 text-neon-purple' : 'bg-neon-orange/20 text-neon-orange'}`}>
+                                                    {notif.type === 'alert' ? 'Reminder' : 'Action Needed'}
+                                                </span>
+                                                <span className="text-[10px] text-white/30">Just now</span>
+                                            </div>
+                                            <p className="text-sm font-bold text-white/90 mb-1">{notif.title}</p>
+                                            <p className="text-xs text-white/60 leading-relaxed">{notif.message}</p>
+                                            <Link href={`/event/${notif.eventId}`} onClick={() => setNotifOpen(false)} className="block mt-2 text-xs text-neon-blue hover:underline">
+                                                View Event →
+                                            </Link>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-6 text-white/30">
+                                        <p className="text-sm">You are all caught up!</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <div className="text-right hidden lg:block">
                   <p className="text-sm font-bold text-white">{user.name}</p>
                   <p className="text-xs text-white/50">{user.email}</p>
