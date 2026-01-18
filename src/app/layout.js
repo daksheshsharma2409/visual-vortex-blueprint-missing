@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
           <ScrollToTop />
           <Navbar />
           <main className="min-h-screen pt-20">
-             {children}
+            {children}
           </main>
         </StoreProvider>
       </body>

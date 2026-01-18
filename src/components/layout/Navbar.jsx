@@ -22,7 +22,7 @@ const Navbar = () => {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
-    
+
     // Click outside listener
     const handleClickOutside = (event) => {
       if (notifRef.current && !notifRef.current.contains(event.target)) {
@@ -32,8 +32,8 @@ const Navbar = () => {
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-        window.removeEventListener("scroll", handleScroll);
-        document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -63,7 +63,7 @@ const Navbar = () => {
           <NavLink href="/hackathons" active={pathname === "/hackathons"}>Hackathons</NavLink>
           <NavLink href="/workshops" active={pathname === "/workshops"}>Workshops</NavLink>
           <NavLink href="/cultural" active={pathname === "/cultural"}>Cultural</NavLink>
-          
+
           {!user ? (
             <div className="flex items-center gap-4 ml-4">
               <Link href="/login" className="text-white/70 hover:text-white font-medium text-sm transition-colors">
@@ -76,72 +76,72 @@ const Navbar = () => {
               </Link>
             </div>
           ) : (
-             <div className="flex items-center gap-4 ml-4">
-                {/* Notifications */}
-                <div className="relative" ref={notifRef}>
-                    <button 
-                        onClick={() => setNotifOpen(!notifOpen)}
-                        className="relative w-10 h-10 rounded-full bg-surface-highlight border border-white/10 flex items-center justify-center hover:border-neon-blue transition-colors text-white"
+            <div className="flex items-center gap-4 ml-4">
+              {/* Notifications */}
+              <div className="relative" ref={notifRef}>
+                <button
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className="relative w-10 h-10 rounded-full bg-surface-highlight border border-white/10 flex items-center justify-center hover:border-neon-blue transition-colors text-white"
+                >
+                  <Bell size={18} />
+                  {notifications.length > 0 && (
+                    <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-black"></span>
+                  )}
+                </button>
+
+                {/* Notification Dropdown */}
+                <AnimatePresence>
+                  {notifOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-12 right-0 w-80 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-50 origin-top-right"
                     >
-                        <Bell size={18} />
-                        {notifications.length > 0 && (
-                            <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-black"></span>
-                        )}
-                    </button>
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-white">Notifications</h3>
+                        <span className="text-xs text-white/50">{notifications.length} New</span>
+                      </div>
+                      <div className="space-y-3 max-h-60 overflow-y-auto overflow-x-hidden custom-scrollbar">
+                        <AnimatePresence mode="popLayout">
+                          {notifications.length > 0 ? (
+                            notifications.map(notif => (
+                              <NotificationItem key={notif.id} notif={notif} onDismiss={markAsDismissed} setNotifOpen={setNotifOpen} />
+                            ))
+                          ) : (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="text-center py-6 text-white/30"
+                            >
+                              <p className="text-sm">You are all caught up!</p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      <p className="text-[10px] text-center text-white/20 mt-3 border-t border-white/5 pt-2">
+                        Swipe left to dismiss
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-                    {/* Notification Dropdown */}
-                    <AnimatePresence>
-                    {notifOpen && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            className="absolute top-12 right-0 w-80 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-50 origin-top-right"
-                        >
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-white">Notifications</h3>
-                                <span className="text-xs text-white/50">{notifications.length} New</span>
-                            </div>
-                            <div className="space-y-3 max-h-60 overflow-y-auto overflow-x-hidden custom-scrollbar">
-                                <AnimatePresence mode="popLayout">
-                                {notifications.length > 0 ? (
-                                    notifications.map(notif => (
-                                        <NotificationItem key={notif.id} notif={notif} onDismiss={markAsDismissed} setNotifOpen={setNotifOpen} />
-                                    ))
-                                ) : (
-                                    <motion.div 
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="text-center py-6 text-white/30"
-                                    >
-                                        <p className="text-sm">You are all caught up!</p>
-                                    </motion.div>
-                                )}
-                                </AnimatePresence>
-                            </div>
-                            <p className="text-[10px] text-center text-white/20 mt-3 border-t border-white/5 pt-2">
-                                Swipe left to dismiss
-                            </p>
-                        </motion.div>
-                    )}
-                    </AnimatePresence>
+              <div className="text-right hidden lg:block">
+                <p className="text-sm font-bold text-white">{user.name}</p>
+                <p className="text-xs text-white/50">{user.email}</p>
+              </div>
+              <Link href="/profile">
+                <div className="w-10 h-10 rounded-full bg-surface-highlight border border-white/10 flex items-center justify-center cursor-pointer hover:border-neon-blue transition-colors">
+                  <User size={18} />
                 </div>
-
-                <div className="text-right hidden lg:block">
-                  <p className="text-sm font-bold text-white">{user.name}</p>
-                  <p className="text-xs text-white/50">{user.email}</p>
-                </div>
-                <Link href="/profile">
-                  <div className="w-10 h-10 rounded-full bg-surface-highlight border border-white/10 flex items-center justify-center cursor-pointer hover:border-neon-blue transition-colors">
-                     <User size={18} />
-                  </div>
-                </Link>
-             </div>
+              </Link>
+            </div>
           )}
         </div>
 
         {/* Mobile Toggle */}
-        <button 
+        <button
           className="md:hidden text-white"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
@@ -155,9 +155,9 @@ const Navbar = () => {
           <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-2xl font-bold text-white">Home</Link>
           <Link href="/explore" onClick={() => setMobileMenuOpen(false)} className="text-2xl font-bold text-white">Explore</Link>
           {!user ? (
-             <GlassButton onClick={() => { login(); setMobileMenuOpen(false); }} className="w-full justify-center">Sign In</GlassButton>
+            <GlassButton onClick={() => { login(); setMobileMenuOpen(false); }} className="w-full justify-center">Sign In</GlassButton>
           ) : (
-             <GlassButton onClick={() => { logout(); setMobileMenuOpen(false); }} variant="outline" className="w-full justify-center">Sign Out</GlassButton>
+            <GlassButton onClick={() => { logout(); setMobileMenuOpen(false); }} variant="outline" className="w-full justify-center">Sign Out</GlassButton>
           )}
         </div>
       )}
@@ -166,50 +166,50 @@ const Navbar = () => {
 };
 
 const NotificationItem = ({ notif, onDismiss, setNotifOpen }) => {
-    return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 50, transition: { duration: 0.2 } }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={(event, info) => {
-                if (info.offset.x > 100 || info.offset.x < -100) {
-                    onDismiss(notif.id);
-                }
-            }}
-            whileDrag={{ scale: 1.02, zIndex: 10 }}
-            className="relative bg-white/5 rounded-xl border border-white/5 touch-pan-y cursor-grab active:cursor-grabbing overflow-hidden"
-        >
-             {/* Background Layers for Reveal Effect */}
-             <div className="absolute inset-y-0 left-0 w-full bg-red-500/20 flex items-center justify-start pl-4 opacity-0 transition-opacity">
-                 <Trash2 size={16} className="text-red-500" />
-             </div>
-             <div className="absolute inset-y-0 right-0 w-full bg-red-500/20 flex items-center justify-end pr-4 opacity-0 transition-opacity">
-                 <Trash2 size={16} className="text-red-500" />
-             </div>
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 50, transition: { duration: 0.2 } }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      onDragEnd={(event, info) => {
+        if (info.offset.x > 100 || info.offset.x < -100) {
+          onDismiss(notif.id);
+        }
+      }}
+      whileDrag={{ scale: 1.02, zIndex: 10 }}
+      className="relative bg-white/5 rounded-xl border border-white/5 touch-pan-y cursor-grab active:cursor-grabbing overflow-hidden"
+    >
+      {/* Background Layers for Reveal Effect */}
+      <div className="absolute inset-y-0 left-0 w-full bg-red-500/20 flex items-center justify-start pl-4 opacity-0 transition-opacity">
+        <Trash2 size={16} className="text-red-500" />
+      </div>
+      <div className="absolute inset-y-0 right-0 w-full bg-red-500/20 flex items-center justify-end pr-4 opacity-0 transition-opacity">
+        <Trash2 size={16} className="text-red-500" />
+      </div>
 
-            <div className="relative p-3 bg-[#0a0a0a]">
-                <div className="flex justify-between items-start mb-1">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${notif.type === 'alert' ? 'bg-neon-purple/20 text-neon-purple' : 'bg-neon-orange/20 text-neon-orange'}`}>
-                        {notif.type === 'alert' ? 'Reminder' : 'Action Needed'}
-                    </span>
-                    <span className="text-[10px] text-white/30">Just now</span>
-                </div>
-                <p className="text-sm font-bold text-white/90 mb-1">{notif.title}</p>
-                <p className="text-xs text-white/60 leading-relaxed">{notif.message}</p>
-                <Link href={`/event/${notif.eventId}`} onClick={() => setNotifOpen(false)} className="block mt-2 text-xs text-neon-blue hover:underline">
-                    View Event →
-                </Link>
-            </div>
-        </motion.div>
-    );
+      <div className="relative p-3 bg-[#0a0a0a]">
+        <div className="flex justify-between items-start mb-1">
+          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${notif.type === 'alert' ? 'bg-neon-purple/20 text-neon-purple' : 'bg-neon-orange/20 text-neon-orange'}`}>
+            {notif.type === 'alert' ? 'Reminder' : 'Action Needed'}
+          </span>
+          <span className="text-[10px] text-white/30">Just now</span>
+        </div>
+        <p className="text-sm font-bold text-white/90 mb-1">{notif.title}</p>
+        <p className="text-xs text-white/60 leading-relaxed">{notif.message}</p>
+        <Link href={`/event/${notif.eventId}`} onClick={() => setNotifOpen(false)} className="block mt-2 text-xs text-neon-blue hover:underline">
+          View Event →
+        </Link>
+      </div>
+    </motion.div>
+  );
 };
 
 const NavLink = ({ href, active, children }) => (
-  <Link 
-    href={href} 
+  <Link
+    href={href}
     className={cn(
       "relative text-sm font-medium tracking-wide transition-colors duration-300 hover:text-white",
       active ? "text-white" : "text-white/60"
