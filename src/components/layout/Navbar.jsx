@@ -3,24 +3,38 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/context/StoreContext";
-import { Zap, Menu, X, User, Bell } from "lucide-react";
+import { Zap, Menu, X, User, Bell, Trash2 } from "lucide-react";
 import GlassButton from "@/components/ui/GlassButton";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
-  const { user, login, logout, notifications } = useStore();
+  const { user, login, logout, notifications, markAsDismissed } = useStore();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false); // New: Notification Dropdown State
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = React.useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Click outside listener
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+        window.removeEventListener("scroll", handleScroll);
+        document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   return (
@@ -64,7 +78,7 @@ const Navbar = () => {
           ) : (
              <div className="flex items-center gap-4 ml-4">
                 {/* Notifications */}
-                <div className="relative">
+                <div className="relative" ref={notifRef}>
                     <button 
                         onClick={() => setNotifOpen(!notifOpen)}
                         className="relative w-10 h-10 rounded-full bg-surface-highlight border border-white/10 flex items-center justify-center hover:border-neon-blue transition-colors text-white"
@@ -76,37 +90,41 @@ const Navbar = () => {
                     </button>
 
                     {/* Notification Dropdown */}
+                    <AnimatePresence>
                     {notifOpen && (
-                        <div className="absolute top-12 right-0 w-80 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-50">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="absolute top-12 right-0 w-80 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-50 origin-top-right"
+                        >
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="font-bold text-white">Notifications</h3>
                                 <span className="text-xs text-white/50">{notifications.length} New</span>
                             </div>
-                            <div className="space-y-3 max-h-60 overflow-y-auto">
+                            <div className="space-y-3 max-h-60 overflow-y-auto overflow-x-hidden custom-scrollbar">
+                                <AnimatePresence mode="popLayout">
                                 {notifications.length > 0 ? (
                                     notifications.map(notif => (
-                                        <div key={notif.id} className="p-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                                            <div className="flex justify-between items-start mb-1">
-                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${notif.type === 'alert' ? 'bg-neon-purple/20 text-neon-purple' : 'bg-neon-orange/20 text-neon-orange'}`}>
-                                                    {notif.type === 'alert' ? 'Reminder' : 'Action Needed'}
-                                                </span>
-                                                <span className="text-[10px] text-white/30">Just now</span>
-                                            </div>
-                                            <p className="text-sm font-bold text-white/90 mb-1">{notif.title}</p>
-                                            <p className="text-xs text-white/60 leading-relaxed">{notif.message}</p>
-                                            <Link href={`/event/${notif.eventId}`} onClick={() => setNotifOpen(false)} className="block mt-2 text-xs text-neon-blue hover:underline">
-                                                View Event →
-                                            </Link>
-                                        </div>
+                                        <NotificationItem key={notif.id} notif={notif} onDismiss={markAsDismissed} setNotifOpen={setNotifOpen} />
                                     ))
                                 ) : (
-                                    <div className="text-center py-6 text-white/30">
+                                    <motion.div 
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-center py-6 text-white/30"
+                                    >
                                         <p className="text-sm">You are all caught up!</p>
-                                    </div>
+                                    </motion.div>
                                 )}
+                                </AnimatePresence>
                             </div>
-                        </div>
+                            <p className="text-[10px] text-center text-white/20 mt-3 border-t border-white/5 pt-2">
+                                Swipe left to dismiss
+                            </p>
+                        </motion.div>
                     )}
+                    </AnimatePresence>
                 </div>
 
                 <div className="text-right hidden lg:block">
@@ -145,6 +163,48 @@ const Navbar = () => {
       )}
     </nav>
   );
+};
+
+const NotificationItem = ({ notif, onDismiss, setNotifOpen }) => {
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50, transition: { duration: 0.2 } }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={(event, info) => {
+                if (info.offset.x > 100 || info.offset.x < -100) {
+                    onDismiss(notif.id);
+                }
+            }}
+            whileDrag={{ scale: 1.02, zIndex: 10 }}
+            className="relative bg-white/5 rounded-xl border border-white/5 touch-pan-y cursor-grab active:cursor-grabbing overflow-hidden"
+        >
+             {/* Background Layers for Reveal Effect */}
+             <div className="absolute inset-y-0 left-0 w-full bg-red-500/20 flex items-center justify-start pl-4 opacity-0 transition-opacity">
+                 <Trash2 size={16} className="text-red-500" />
+             </div>
+             <div className="absolute inset-y-0 right-0 w-full bg-red-500/20 flex items-center justify-end pr-4 opacity-0 transition-opacity">
+                 <Trash2 size={16} className="text-red-500" />
+             </div>
+
+            <div className="relative p-3 bg-[#0a0a0a]">
+                <div className="flex justify-between items-start mb-1">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${notif.type === 'alert' ? 'bg-neon-purple/20 text-neon-purple' : 'bg-neon-orange/20 text-neon-orange'}`}>
+                        {notif.type === 'alert' ? 'Reminder' : 'Action Needed'}
+                    </span>
+                    <span className="text-[10px] text-white/30">Just now</span>
+                </div>
+                <p className="text-sm font-bold text-white/90 mb-1">{notif.title}</p>
+                <p className="text-xs text-white/60 leading-relaxed">{notif.message}</p>
+                <Link href={`/event/${notif.eventId}`} onClick={() => setNotifOpen(false)} className="block mt-2 text-xs text-neon-blue hover:underline">
+                    View Event →
+                </Link>
+            </div>
+        </motion.div>
+    );
 };
 
 const NavLink = ({ href, active, children }) => (

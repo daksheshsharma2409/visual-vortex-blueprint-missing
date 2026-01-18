@@ -127,10 +127,16 @@ export default function EventDetailsPage({ params }) {
           {/* Sidebar */}
           <div className="space-y-6">
              <div className="glass-panel p-6 rounded-3xl space-y-6 sticky top-24 border border-white/10 bg-white/5 backdrop-blur-md">
-                <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                   <span className="text-white/70 font-medium">Prize / Stipend</span>
-                   <span className="text-xl font-bold text-neon-orange flex items-center gap-2"><Trophy size={18} /> {event.prize}</span>
-                </div>
+                 <div className="flex flex-col gap-2 pb-6 border-b border-white/10">
+                    <span className="text-white/70 font-medium text-sm uppercase tracking-wider">Prize / Stipend</span>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-neon-orange/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="w-12 h-12 rounded-full bg-neon-orange/20 flex items-center justify-center text-neon-orange shrink-0 relative z-10">
+                            <Trophy size={24} />
+                        </div>
+                        <span className="text-3xl font-black text-white relative z-10 tracking-tight">{event.prize}</span>
+                    </div>
+                 </div>
 
                 <div className="space-y-5">
                    {/* Info Rows */}

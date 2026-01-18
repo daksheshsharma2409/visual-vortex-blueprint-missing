@@ -158,6 +158,13 @@ export const StoreProvider = ({ children }) => {
     updateUser({ interested: newList });
   };
 
+  const markAsDismissed = (notifId) => {
+    if (!user) return;
+    const list = user.dismissed || [];
+    const newList = [...list, notifId];
+    updateUser({ dismissed: newList });
+  };
+
   const updateInterests = (newInterests) => {
     updateUser({ interests: newInterests });
   };
@@ -172,6 +179,7 @@ export const StoreProvider = ({ children }) => {
     }
 
     const notifs = [];
+    const dismissed = user.dismissed || [];
 
     // Rule 1: Viewed but not Applied (from History)
     // Filter history events that are NOT in 'applied' list
@@ -179,11 +187,14 @@ export const StoreProvider = ({ children }) => {
         // Skip if already applied
         if (user.applied?.includes(historyId)) return;
 
+        const id = `remind-${historyId}`;
+        if (dismissed.includes(id)) return; // Skip if dismissed
+
         // Find event details
         const event = EVENTS.find(e => String(e.id) === String(historyId));
         if (event) {
              notifs.push({
-                 id: `remind-${historyId}`,
+                 id: id,
                  type: "reminder",
                  eventId: historyId,
                  title: "Did you apply?",
@@ -195,10 +206,13 @@ export const StoreProvider = ({ children }) => {
 
     // Rule 2: Interested events
     (user.interested || []).forEach(interestedId => {
+        const id = `interest-${interestedId}`;
+        if (dismissed.includes(id)) return; // Skip if dismissed
+
         const event = EVENTS.find(e => String(e.id) === String(interestedId));
         if (event) {
             notifs.push({
-                id: `interest-${interestedId}`,
+                id: id,
                 type: "alert",
                 eventId: interestedId,
                 title: "Upcoming Event",
@@ -210,7 +224,7 @@ export const StoreProvider = ({ children }) => {
 
     setNotifications(notifs);
 
-  }, [user, user?.history, user?.applied, user?.interested]);
+  }, [user, user?.history, user?.applied, user?.interested, user?.dismissed]);
 
   // Filter & Sort Logic
   useEffect(() => {
@@ -272,8 +286,9 @@ export const StoreProvider = ({ children }) => {
       addToHistory,
       removeFromHistory,
       toggleBookmark,
-      toggleApplied, // New
-      toggleInterested, // New
+      toggleApplied,
+      toggleInterested,
+      markAsDismissed, // New
       updateInterests,
       notifications, // New
       events,
