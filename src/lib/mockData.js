@@ -97,11 +97,8 @@ const WORKSHOP_IMITS = [
 
 const CULTURAL_IMITS = [
     "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000",
-    "https://images.unsplash.com/photo-1556438050-bf887e543632?auto=format&fit=crop&q=80&w=1000",
     "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000",
     "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=1000",
-    "https://images.unsplash.com/photo-1525296091114-b3cca4dde1b3?auto=format&fit=crop&q=80&w=1000",
-    "https://images.unsplash.com/photo-1505378732734-638bc2c125a7?auto=format&fit=crop&q=80&w=1000",
     "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&q=80&w=1000",
     "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1000"
 ];
