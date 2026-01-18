@@ -82,9 +82,9 @@ export default function EventDetailsPage({ params }) {
                 <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
 
                 <div className="absolute bottom-0 left-0 w-full z-20 container mx-auto px-6 pb-12">
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-4">
                         <Badge className="bg-neon-blue text-black border-transparent font-bold">{event.type}</Badge>
-                        {details.stats?.daysLeft && <Badge className="bg-white/10 text-white border-white/20"><Clock size={12} className="mr-1" /> {details.stats.daysLeft} days left</Badge>}
+                        {details.stats?.daysLeft && <Badge className="bg-white/10 text-white border-white/20 flex items-center gap-1"><Clock size={12} /> {details.stats.daysLeft} days left</Badge>}
                     </div>
                     <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter mb-2">{event.title}</h1>
                     <p className="text-xl text-white/70 font-medium">By {event.organizer}</p>
@@ -257,10 +257,10 @@ export default function EventDetailsPage({ params }) {
                             </div>
 
                             {/* Status Toggles */}
-                            <div className="grid grid-cols-2 gap-2 pt-2">
+                            <div className="flex gap-2 pt-2">
                                 <button
                                     onClick={() => toggleApplied(event.id)}
-                                    className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border ${user?.applied?.includes(event.id)
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border ${user?.applied?.includes(event.id)
                                         ? "bg-green-500/20 text-green-400 border-green-500/50"
                                         : "bg-white/5 text-white/40 border-transparent hover:bg-white/10"
                                         }`}
@@ -270,7 +270,7 @@ export default function EventDetailsPage({ params }) {
 
                                 <button
                                     onClick={() => toggleInterested(event.id)}
-                                    className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border ${user?.interested?.includes(event.id)
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border ${user?.interested?.includes(event.id)
                                         ? "bg-neon-purple/20 text-neon-purple border-neon-purple/50"
                                         : "bg-white/5 text-white/40 border-transparent hover:bg-white/10"
                                         }`}
