@@ -10,7 +10,7 @@ import gsap from "gsap";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
-  const { user, login, logout, notifications, markAsDismissed } = useStore();
+  const { user, logout, notifications, markAsDismissed } = useStore();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -41,7 +41,7 @@ const Navbar = () => {
     <nav
       className={cn(
         "fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b",
-        scrolled
+        scrolled && !mobileMenuOpen
           ? "bg-black/50 backdrop-blur-xl border-white/10 py-3"
           : "bg-transparent border-transparent py-5"
       )}
@@ -150,17 +150,53 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu Overlay */}
-      {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full h-screen bg-black/95 backdrop-blur-xl p-6 flex flex-col gap-6 md:hidden">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-2xl font-bold text-white">Home</Link>
-          <Link href="/explore" onClick={() => setMobileMenuOpen(false)} className="text-2xl font-bold text-white">Explore</Link>
-          {!user ? (
-            <GlassButton onClick={() => { login(); setMobileMenuOpen(false); }} className="w-full justify-center">Sign In</GlassButton>
-          ) : (
-            <GlassButton onClick={() => { logout(); setMobileMenuOpen(false); }} variant="outline" className="w-full justify-center">Sign Out</GlassButton>
-          )}
-        </div>
-      )}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: "100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 md:hidden"
+          >
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"
+            >
+              <X size={32} />
+            </button>
+
+            <div className="flex flex-col items-center gap-6 w-full px-10 pt-12">
+              <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-3xl font-black text-white hover:text-neon-blue transition-colors">Home</Link>
+              <Link href="/hackathons" onClick={() => setMobileMenuOpen(false)} className="text-3xl font-black text-white hover:text-neon-purple transition-colors">Hackathons</Link>
+              <Link href="/workshops" onClick={() => setMobileMenuOpen(false)} className="text-3xl font-black text-white hover:text-neon-green transition-colors">Workshops</Link>
+              <Link href="/cultural" onClick={() => setMobileMenuOpen(false)} className="text-3xl font-black text-white hover:text-neon-orange transition-colors">Cultural</Link>
+            </div>
+
+            <div className="w-20 h-[1px] bg-white/10 my-4" />
+
+            <div className="flex flex-col w-full px-10 gap-4">
+              {!user ? (
+                <>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full">
+                    <GlassButton variant="ghost" className="w-full justify-center text-lg py-6">Login</GlassButton>
+                  </Link>
+                  <Link href="/onboarding" onClick={() => setMobileMenuOpen(false)} className="w-full">
+                    <GlassButton variant="primary" className="w-full justify-center text-lg py-6 font-bold shadow-[0_0_20px_rgba(0,243,255,0.2)]">Sign Up</GlassButton>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="w-full">
+                    <GlassButton variant="ghost" className="w-full justify-center text-lg py-6">Profile</GlassButton>
+                  </Link>
+                  <GlassButton onClick={() => { logout(); setMobileMenuOpen(false); }} variant="outline" className="w-full justify-center text-lg py-6 border-red-500/50 text-red-400 hover:bg-red-500/10">Sign Out</GlassButton>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };
