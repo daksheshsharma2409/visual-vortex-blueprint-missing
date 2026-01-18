@@ -35,7 +35,7 @@ const HeroSection = () => {
       <div ref={textRef} className="relative z-10 container mx-auto px-6 text-center flex flex-col items-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6">
           <Sparkles size={14} className="text-neon-orange" />
-          <span className="text-xs font-bold uppercase tracking-widest text-white/80">Campus Event Discovery Reimagined</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-white/80">Student's Event Discovery Reimagined</span>
         </div>
 
         <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-6">
